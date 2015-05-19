@@ -23,6 +23,21 @@
 $( document ).ready(function() {
     console.log( "document ready!" );
     
+    botGetJobs = function(callback){
+        jQuery.ajax({
+            url : "/game.php?window=map&ajax=get_minimap",
+            type : "POST",
+            dataType : "json",
+            async: "false",
+            success : function (data) {
+                callback(data);
+                //console.log(data);
+                    //return data;
+            }
+        });
+
+    }
+    
     
     //botGetJobs(function(data){console.log(data);});
     
@@ -46,7 +61,7 @@ $( document ).ready(function() {
     
     _botStartBot = function(){
         
-        console.log('tik');
+        //console.log('tik');
         this.jobList;
         self = this; 
         //console.log(typeof(this.jobList));
@@ -56,7 +71,7 @@ $( document ).ready(function() {
                self.jobList = data;
             });
         }
-        console.log(jobList);
+        //console.log(jobList);
         
     }
     
@@ -68,7 +83,19 @@ $( document ).ready(function() {
 });
 
 
+//http://ru14.the-west.ru/game.php?window=work&mode=index
 
+/*jQuery.ajax({
+        url : "http://ru14.the-west.ru/game.php?window=work&mode=index",
+        type : "POST",
+        dataType : "json",
+        success : function (data) {
+                console.log(data);
+        },
+        error : function () {
+            alert("Failed to submit the order.");
+        }
+    });*/
 
 
 getDistance = function(from, to){
@@ -138,3 +165,7 @@ tasks[3][y]:8118
 
 
 */
+
+//JobsModel.sortJobs('experience', null, 'desc');
+//JobsModel.Jobs 
+//isVisible: true
