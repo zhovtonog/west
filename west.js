@@ -61,8 +61,8 @@ $( document ).ready(function() {
     
     _botStartBot = function(){
         
-        //console.log('tik');
-        this.jobList;
+        console.log('tik');
+       /* this.jobList;
         self = this; 
         //console.log(typeof(this.jobList));
         if(!this.jobList){
@@ -70,15 +70,114 @@ $( document ).ready(function() {
             botGetJobs(function(data){
                self.jobList = data;
             });
-        }
+        }*/
         //console.log(jobList);
+		
+		function isSleep_(){
+			console.log();
+		}
+		
+		function lowHp(){
+		
+		}
+		
+		function lowEn(){
+		
+		}
+		
+		function isMoneyInBag(){
+		
+		
+		}
+		
+		function findBestWork(){
+		
+		}
+		
+		function getBestPeriod(){
+		
+		}
+		
+		function getBestLocation(){
+		
+		}
+		
+		function startWork(){
+		
+		}
+		
+		function gamePage(){
+			if('ru14.the-west.ru' == location.host){
+				return true;
+			} else {
+				return false;
+			}
+		}
+		
+		function loginAccount(){
+			
+			//$('#inputUsername .loginUsername').val('Mokerok');
+			//$('#inputPassword .loginPassword').val('master333');
+			//$('#loginButton').trigger('click');
+			
+			//Auth.login('14');
+			var data = {name:'Mokerok',password:'master333'};
+			
+			jQuery.ajax({
+				url : "http://www.the-west.ru/index.php?ajax=check_login",
+				type : "POST",
+				dataType : "json",
+				async: false,
+				data: data,
+				success : function (data) {
+					//setTimeout(function(){
+							//Auth.checkLogin();
+						//},1000);
+					
+					
+					//if(!Auth.checkLogin()){
+						/*setTimeout(function(){
+							Auth.login('14');
+						},3000);*/
+					//}
+					//setTimeout(function(){
+					//	Auth.login('14');
+					//},1000);
+						//nsole.log(data);
+				},
+				error : function () {
+					alert("Failed to submit the order.");
+				}
+			});
+		
+		}
+		
+		if(!gamePage()){
+			//loginAccount();
+			//ждать загрузки или пытатся залогинится
+		} /*else {
+		
+			if(isSleep?() && lowStat() && !moneyInBag()){
+			   // ничего не делать, или проверить сколько ещо спать и забить
+			   
+			} else if(isSleep?() && lowStat() && moneyInBag()){
+				//выложить деньги   
+			} else if(isSleep?() && !lowStat()){
+				   //проснутся
+			} else if(!isSleep?()){
+			   var bestWork = findBestWork(type);
+			   var period = getBestPeriod(bestWork);
+			   var location = getBestLocation(bestWork);
+			   startWork(bestWork, location, period);
+			}
+		}*/
         
     }
     
     
     setInterval(function(){
         _botStartBot();
-    },1000);
+    },5000);
     
 });
 
