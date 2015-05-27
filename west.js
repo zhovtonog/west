@@ -38,7 +38,7 @@ $( document ).ready(function() {
 
     }
     
-    
+    var initData = {loginStep : 'notLogin'};
     //botGetJobs(function(data){console.log(data);});
     
     
@@ -60,6 +60,9 @@ $( document ).ready(function() {
     
     
     _botStartBot = function(){
+
+        //this.loginStep = 'notLogin';
+        var botNS = this;
         
         console.log('tik');
        /* this.jobList;
@@ -74,36 +77,47 @@ $( document ).ready(function() {
         //console.log(jobList);
 		
 		function isSleep_(){
-			console.log();
+            if(TaskQueue.queue[0] && 'sleep' == TaskQueue.queue[0].type){
+                console.log('isSleep_ true');
+            } else {
+                console.log('isSleep_ false');
+            }
+			//console.log('isSleep_');
 		}
+
+        function wekeUp(){
+            $.each(TaskQueue.queue, function(key,val){
+                TaskQueue.cancel(key);
+            });
+        }
 		
 		function lowHp(){
-		
+            console.log('isSleep_');
 		}
 		
 		function lowEn(){
-		
+            console.log('isSleep_');
 		}
 		
 		function isMoneyInBag(){
-		
+            console.log('isSleep_');
 		
 		}
 		
 		function findBestWork(){
-		
+            console.log('isSleep_');
 		}
 		
 		function getBestPeriod(){
-		
+            console.log('isSleep_');
 		}
 		
 		function getBestLocation(){
-		
-		}
+            console.log('isSleep_');
+        }
 		
 		function startWork(){
-		
+            console.log('isSleep_');
 		}
 		
 		function gamePage(){
@@ -115,15 +129,46 @@ $( document ).ready(function() {
 		}
 		
 		function loginAccount(){
-			
+            var self = this;
+
+            if('notLogin' == initData.loginStep){
+                initData.loginStep = 'loginStart';
+                $('#inputUsername .loginUsername').val('Mokerok');
+                $('#inputPassword .loginPassword').val('master333');
+                $('#loginButton').trigger('click');
+
+                /*setTimeout(function(){
+                    console.log(self.loginStep);
+                    console.log('qedasdsad');
+                    self.loginStep = 'loginProcess';
+                }, 3000);*/
+
+            } else if('loginStart' == initData.loginStep){
+                initData.loginStep = 'loginProcess';
+                setTimeout(function(){
+                    initData.loginStep = 'loginComplite';
+                }, 3000);
+               /* Auth.login('14');
+                setTimeout(function(){
+
+                    console.log('zzzzzzzz');
+                    self.loginStep = 'notLogin';
+                }, 3000);*/
+            } else if('loginComplite' == initData.loginStep){
+                Auth.login('14');
+                setTimeout(function(){
+                    initData.loginStep = 'notLogin';
+                }, 3000);
+
+            }
 			//$('#inputUsername .loginUsername').val('Mokerok');
 			//$('#inputPassword .loginPassword').val('master333');
 			//$('#loginButton').trigger('click');
 			
 			//Auth.login('14');
-			var data = {name:'Mokerok',password:'master333'};
+			//var data = {name:'Yellow7',password:'yellow333'};
 			
-			jQuery.ajax({
+			/*jQuery.ajax({
 				url : "http://www.the-west.ru/index.php?ajax=check_login",
 				type : "POST",
 				dataType : "json",
@@ -138,7 +183,7 @@ $( document ).ready(function() {
 					//if(!Auth.checkLogin()){
 						/*setTimeout(function(){
 							Auth.login('14');
-						},3000);*/
+						},3000);
 					//}
 					//setTimeout(function(){
 					//	Auth.login('14');
@@ -148,29 +193,29 @@ $( document ).ready(function() {
 				error : function () {
 					alert("Failed to submit the order.");
 				}
-			});
+			});*/
 		
 		}
 		
 		if(!gamePage()){
 			//loginAccount();
 			//ждать загрузки или пытатся залогинится
-		} /*else {
+		} else {
 		
-			if(isSleep?() && lowStat() && !moneyInBag()){
+			if(isSleep_() && Character.energy/Character.maxEnergy < 0.95 && Character.health/Character.maxHealth < 0.6 && 0 == Character.money){
 			   // ничего не делать, или проверить сколько ещо спать и забить
 			   
-			} else if(isSleep?() && lowStat() && moneyInBag()){
+			} else if(isSleep_() && Character.energy/Character.maxEnergy < 0.95 && Character.health/Character.maxHealth < 0.6 && 0 < Character.money){
 				//выложить деньги   
-			} else if(isSleep?() && !lowStat()){
-				   //проснутся
-			} else if(!isSleep?()){
+			} else if(isSleep?() && Character.energy/Character.maxEnergy < 0.95 && Character.health/Character.maxHealth > 0.6){
+                wekeUp()
+			} /*else if(!isSleep?()){
 			   var bestWork = findBestWork(type);
 			   var period = getBestPeriod(bestWork);
 			   var location = getBestLocation(bestWork);
 			   startWork(bestWork, location, period);
-			}
-		}*/
+			}*/
+		}
         
     }
     
