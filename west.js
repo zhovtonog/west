@@ -107,25 +107,32 @@ $( document ).ready(function() {
 		}
 		
 		function startBestWorkByType(){
-			console.log('start find');
+			console.log('start findasdsadasd');
+			//console.log(JobsModel.Jobs[0]);
 			//initData.workType;
-			if(1 == JobsModel.Jobs[0].id && 21 == JobsModel.Jobs[20].id ){
+			if(1 == JobsModel.Jobs[0].id && 21 == JobsModel.Jobs[20].id & 'notInit' == initData.sortedWork){
 				console.log('not sorted jobs');
 				JobsWindow.toggleOpen();
 				wman.closeAll();
-				JobsModel.sortJobs('experience', null, 'desc');
-				//initData.sortedWork = 'inited';
-			} /*else {
+				initData.sortedWork = 'inited'
 				//JobsModel.sortJobs('experience', null, 'desc');
-				console.log(JobsModel.Jobs);
+				//initData.sortedWork = 'inited';
+			} else if('inited' == initData.sortedWork){
+				initData.sortedWork = 'sorted';
+			
+			} else {
+				var job;
+				//JobsModel.sortJobs('experience', null, 'desc');
+				//console.log(JobsModel.Jobs);
 				$.each(JobsModel.Jobs, function(key, val){
 					if(val.isVisible){
 						console.log(val);
-						break;
+						return;
 					}
 						//isVisible: true
 				});
-			}*/
+				
+			}
             console.log('isSleep_');
 		}
 		
