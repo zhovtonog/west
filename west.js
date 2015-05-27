@@ -38,7 +38,9 @@ $( document ).ready(function() {
 
     }
     
-    var initData = {loginStep : 'notLogin'};
+    var initData = {loginStep : 'notLogin',
+				   sortedWork: 'notInit',
+				   workType: 'experience'};
     //botGetJobs(function(data){console.log(data);});
     
     
@@ -104,7 +106,26 @@ $( document ).ready(function() {
 		
 		}
 		
-		function findBestWork(){
+		function startBestWorkByType(){
+			console.log('start find');
+			//initData.workType;
+			if(1 == JobsModel.Jobs[0].id && 21 == JobsModel.Jobs[20].id ){
+				console.log('not sorted jobs');
+				JobsWindow.toggleOpen();
+				wman.closeAll();
+				JobsModel.sortJobs('experience', null, 'desc');
+				//initData.sortedWork = 'inited';
+			} /*else {
+				//JobsModel.sortJobs('experience', null, 'desc');
+				console.log(JobsModel.Jobs);
+				$.each(JobsModel.Jobs, function(key, val){
+					if(val.isVisible){
+						console.log(val);
+						break;
+					}
+						//isVisible: true
+				});
+			}*/
             console.log('isSleep_');
 		}
 		
@@ -121,11 +142,23 @@ $( document ).ready(function() {
 		}
 		
 		function gamePage(){
-			if('ru14.the-west.ru' == location.host){
+			if('ru14.the-west.ru' == document.location.host){
 				return true;
 			} else {
 				return false;
 			}
+		}
+		
+		function tasks(){
+			if(0 == TaskQueue.queue.length){
+				return false;
+			} else {
+				return true;
+			}
+		}
+		
+		function startCollect(){
+		
 		}
 		
 		function loginAccount(){
@@ -207,14 +240,21 @@ $( document ).ready(function() {
 			   
 			} else if(isSleep_() && Character.energy/Character.maxEnergy < 0.95 && Character.health/Character.maxHealth < 0.6 && 0 < Character.money){
 				//выложить деньги   
-			} else if(isSleep?() && Character.energy/Character.maxEnergy < 0.95 && Character.health/Character.maxHealth > 0.6){
-                wekeUp()
-			} /*else if(!isSleep?()){
-			   var bestWork = findBestWork(type);
-			   var period = getBestPeriod(bestWork);
+			} else if(isSleep_() && Character.energy/Character.maxEnergy < 0.95 && Character.health/Character.maxHealth > 0.6){
+                wekeUp();
+			} else if(!isSleep_() && !tasks()){
+				console.log('working');
+				if(true){
+					console.log('startBestWorkByType');
+					startBestWorkByType();
+				} else {
+					startCollect();
+				}
+			   //var bestWork = findBestWork();
+			   /*var period = getBestPeriod(bestWork);
 			   var location = getBestLocation(bestWork);
-			   startWork(bestWork, location, period);
-			}*/
+			   startWork(bestWork, location, period);*/
+			}
 		}
         
     }
@@ -309,7 +349,8 @@ tasks[3][y]:8118
 
 
 */
-
-//JobsModel.sortJobs('experience', null, 'desc');
-//JobsModel.Jobs 
-//isVisible: true
+JobsWindow.toggleOpen();
+wman.closeAll();
+JobsModel.sortJobs('experience', null, 'desc');
+JobsModel.Jobs; 
+isVisible: true
