@@ -77,6 +77,13 @@ $( document ).ready(function() {
             });
         }*/
         //console.log(jobList);
+
+        function initData(){
+            JobsWindow.toggleOpen();
+            MinimapWindow.open();
+            wman.closeAll();
+
+        }
 		
 		function isSleep_(){
             if(TaskQueue.queue[0] && 'sleep' == TaskQueue.queue[0].type){
@@ -105,34 +112,86 @@ $( document ).ready(function() {
             console.log('isSleep_');
 		
 		}
+        function getMinDist(job){
+            //var job = JobsModel.searchJobsByPattern(work)[0];
+            var minDist = '99999999999';
+            var x = 0;
+            var y = 0;
+
+            var cord = {};
+
+            /*charPos = Character.position;
+             charPos.x = charPos.x + 1;
+             charPos.y = charPos.y + 1;*/
+
+            $.each(localStore4Minimap.minimapData.job_groups[job.jobObj.groupid] , function(key,data){
+                var to = {};
+                to.x = data[0];
+                to.y = data[1];
+
+                var qq = getDistance(Character.position, to);
+                if(minDist > qq){
+                    minDist = qq;
+                    x = to.x;
+                    y = to.y;
+                }
+            });
+            cord.x = x;
+            cord.y = y;
+            //console.log(minDist);
+            //console.log(x);
+            //console.log(y);
+            return cord;
+        }
+
 		
 		function startBestWorkByType(){
+            //return;  MinimapWindow.open();
 			console.log('start findasdsadasd');
 			//console.log(JobsModel.Jobs[0]);
 			//initData.workType;
-			if(1 == JobsModel.Jobs[0].id && 21 == JobsModel.Jobs[20].id & 'notInit' == initData.sortedWork){
-				console.log('not sorted jobs');
-				JobsWindow.toggleOpen();
-				wman.closeAll();
-				initData.sortedWork = 'inited'
+            if(0 == JobsModel.Jobs.length){
+                JobsWindow.toggleOpen();
+                wman.closeAll();
+
+            } else {
+                JobsModel.sortJobs('experience', null, 'desc');
+                var i = 0;
+                var bestJob = JobsModel.Jobs[i];
+                while (!JobsModel.Jobs[i].isVisible) {
+                    i++;
+                }
+
+                var cord = getMinDist(bestJob);
+                console.log(cord);
+            }
+			/*if(1 == JobsModel.Jobs[0].id && 21 == JobsModel.Jobs[20].id){
+				console.log('sorted jobs');
+                JobsModel.sortJobs('experience', null, 'desc');
+                console.log(JobsModel.Jobs[0]);
+				//initData.sortedWork = 'inited'
 				//JobsModel.sortJobs('experience', null, 'desc');
 				//initData.sortedWork = 'inited';
 			} else if('inited' == initData.sortedWork){
-				initData.sortedWork = 'sorted';
+                console.log('sorted jobs');
+				//initData.sortedWork = 'sorted';
 			
 			} else {
 				var job;
-				//JobsModel.sortJobs('experience', null, 'desc');
+				JobsModel.sortJobs('experience', null, 'desc');
 				//console.log(JobsModel.Jobs);
 				$.each(JobsModel.Jobs, function(key, val){
 					if(val.isVisible){
-						console.log(val);
+                        job = val;
+						//console.log(val);
 						return;
 					}
 						//isVisible: true
 				});
+
+                console.log(job)
 				
-			}
+			}*/
             console.log('isSleep_');
 		}
 		
@@ -241,7 +300,14 @@ $( document ).ready(function() {
 			//loginAccount();
 			//ждать загрузки или пытатся залогинится
 		} else {
-		
+
+            if(0 == JobsModel.Jobs.length || "undefined" == typeof(localStore4Minimap.minimapData)){
+                initData();
+
+            }
+
+
+
 			if(isSleep_() && Character.energy/Character.maxEnergy < 0.95 && Character.health/Character.maxHealth < 0.6 && 0 == Character.money){
 			   // ничего не делать, или проверить сколько ещо спать и забить
 			   
@@ -314,11 +380,8 @@ $.each(localStore4Minimap.minimapData.job_groups[5] , function(key,data){
 });
 */
 getMinDist = function (work){
-    
     var job = JobsModel.searchJobsByPattern(work)[0];
-    
     var minDist = '99999999999';
-    
     var x = 0;
     var y = 0;
     
@@ -327,7 +390,6 @@ getMinDist = function (work){
     charPos.y = charPos.y + 1;*/
     
     $.each(localStore4Minimap.minimapData.job_groups[job.jobObj.groupid] , function(key,data){
-    //console.log(data);
         var to = {};
         to.x = data[0];
         to.y = data[1];
@@ -338,15 +400,10 @@ getMinDist = function (work){
             x = to.x;
             y = to.y;
         }
-
-
     });
-
-    
     console.log(minDist);
     console.log(x);
     console.log(y);
-
 }
 
 /*
@@ -356,8 +413,8 @@ tasks[3][y]:8118
 
 
 */
-JobsWindow.toggleOpen();
+/*JobsWindow.toggleOpen();
 wman.closeAll();
 JobsModel.sortJobs('experience', null, 'desc');
 JobsModel.Jobs; 
-isVisible: true
+isVisible: true*/
