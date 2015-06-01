@@ -1,7 +1,3 @@
-//localStore4Minimap.minimapData.job_groups[5];
-//Character.position
-//
-
  botGetJobs = function(callback){
     jQuery.ajax({
         url : "/game.php?window=map&ajax=get_minimap",
@@ -38,9 +34,11 @@ $( document ).ready(function() {
 
     }
     
-    var initData = {loginStep : 'notLogin',
+    var conf = {loginStep : 'notLogin',
 				   sortedWork: 'notInit',
-				   workType: 'experience'};
+				   workType: 'experience',
+                    jobID: 0,
+                    xp: 0};
     //botGetJobs(function(data){console.log(data);});
     
     
@@ -67,17 +65,6 @@ $( document ).ready(function() {
         var botNS = this;
         
         console.log('tik');
-       /* this.jobList;
-        self = this; 
-        //console.log(typeof(this.jobList));
-        if(!this.jobList){
-            console.log('get jobs');
-            botGetJobs(function(data){
-               self.jobList = data;
-            });
-        }*/
-        //console.log(jobList);
-
         function initData(){
             JobsWindow.toggleOpen();
             MinimapWindow.open();
@@ -87,9 +74,9 @@ $( document ).ready(function() {
 		
 		function isSleep_(){
             if(TaskQueue.queue[0] && 'sleep' == TaskQueue.queue[0].type){
-                console.log('isSleep_ true');
+                return true;
             } else {
-                console.log('isSleep_ false');
+                return false;
             }
 			//console.log('isSleep_');
 		}
@@ -119,10 +106,6 @@ $( document ).ready(function() {
             var y = 0;
 
             var cord = {};
-
-            /*charPos = Character.position;
-             charPos.x = charPos.x + 1;
-             charPos.y = charPos.y + 1;*/
 
             $.each(localStore4Minimap.minimapData.job_groups[job.jobObj.groupid] , function(key,data){
                 var to = {};
@@ -155,15 +138,38 @@ $( document ).ready(function() {
                 wman.closeAll();
 
             } else {
-                JobsModel.sortJobs('experience', null, 'desc');
-                var i = 0;
-                var bestJob = JobsModel.Jobs[i];
-                while (!JobsModel.Jobs[i].isVisible) {
-                    i++;
+
+                if(0 == conf.jobID){
+                    findBestWorkByType('xp', function(data){
+                        conf.jobID = data.id;
+                        conf.xp = data.xp;
+                    })
+                } else{
+
+                    var bestJob = JobsModel.getById(conf.jobID);
+
+                    var cord = getMinDist(bestJob);
+
+                    var jobCord = {jobId: bestJob.id, x: cord.x, y: cord.y};
+                    console.log(cord);
+
+                    jQuery.ajax({
+                        url : "/game.php?window=job&mode=job",
+                        type : "POST",
+                        dataType : "json",
+                        async: "false",
+                        data : jobCord,
+                        success : function (data) {
+                            console.log(data);
+                            //console.log(data);
+                            //return data;
+                        }
+                    });
+
+
                 }
 
-                var cord = getMinDist(bestJob);
-                console.log(cord);
+
             }
 			/*if(1 == JobsModel.Jobs[0].id && 21 == JobsModel.Jobs[20].id){
 				console.log('sorted jobs');
@@ -195,8 +201,50 @@ $( document ).ready(function() {
             console.log('isSleep_');
 		}
 		
-		function getBestPeriod(){
-            console.log('isSleep_');
+		function findBestWorkByType(type, callbeck){
+            jQuery.ajax({
+                url : "/game.php?window=work&mode=index",
+                type : "POST",
+                dataType : "json",
+                async: "false",
+                success : function (data) {
+                    var point = 0;
+                    var xp = 0;
+                    var id = 0;
+
+                    $.each(data.jobs, function(key, val){
+                        if('xp' == type){
+                            if(point < val.durations[0].xp){
+                                point = val.durations[0].xp;
+                                id = key;
+                                xp = val.durations[0].xp;
+
+                            }
+
+
+                        } else if('money' == type){
+                            if(point < val.durations[0].money){
+                                point = val.durations[0].money;
+                                id = key;
+                                xp = val.durations[0].xp;
+
+                            }
+
+                        } else if ('best' == type){
+                            if(point < val.durations[0].money + val.durations[0].xp){
+                                point = val.durations[0].money + val.durations[0].xp;
+                                id = key;
+                                xp = val.durations[0].xp;
+                            }
+                        }
+
+
+                    })
+
+                    var res = {id:id, xp:xp};
+                    callbeck(res);
+                }
+            });
 		}
 		
 		function getBestLocation(){
