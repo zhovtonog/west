@@ -34,7 +34,9 @@ $( document ).ready(function() {
 
     }
     
-    var conf = {loginStep : 'notLogin',
+    var conf = {user: 'defking',
+                pass:'defking333',
+                loginStep : 'notLogin',
 				   sortedWork: 'notInit',
 				   workType: 'experience',
                     jobID: 0,
@@ -87,18 +89,25 @@ $( document ).ready(function() {
             });
         }
 		
-		function lowHp(){
-            console.log('isSleep_');
+		function goSleep(){
+            TaskQueue.add(new TaskSleep(Character.homeTown.town_id, 'luxurious_apartment'));
 		}
 		
 		function lowEn(){
             console.log('isSleep_');
 		}
 		
-		function isMoneyInBag(){
-            console.log('isSleep_');
+		function getBestDuration(danger, dmg){
+            if(Character.health / danger < 10) {
+                return 3600;
+            } else if(Character.health / danger < 20){
+                return 600;
+            } else {
+                return 15;
+            }
+        }
 		
-		}
+
         function getMinDist(job){
             //var job = JobsModel.searchJobsByPattern(work)[0];
             var minDist = '99999999999';
@@ -161,8 +170,25 @@ $( document ).ready(function() {
                         data : jobCord,
                         success : function (data) {
                             console.log(data);
-                            //console.log(data);
-                            //return data;
+                            var duration = getBestDuration(data.danger, data.maxdmg);
+
+                            if(data.durations[0].xp == conf.xp){
+
+                                if(Character.health/Character.maxHealth < 0.3){
+                                    goSleep();
+
+                                } else if(15 == duration && Character.energy < 1 ||
+                                    600 == duration && Character.energy < 5 ||
+                                    3600 == duration && Character.energy < 12){
+                                    goSleep();
+                                } else {
+
+                                    JobWindow.startJob(data.id, jobCord.x, jobCord.y, duration);
+                                }
+                            } else {
+                                conf.jobID = 0;
+                                conf.xp = 0;
+                            }
                         }
                     });
 
@@ -278,10 +304,10 @@ $( document ).ready(function() {
 		function loginAccount(){
             var self = this;
 
-            if('notLogin' == initData.loginStep){
-                initData.loginStep = 'loginStart';
-                $('#inputUsername .loginUsername').val('Mokerok');
-                $('#inputPassword .loginPassword').val('master333');
+            if('notLogin' == conf.loginStep){
+                conf.loginStep = 'loginStart';
+                $('#inputUsername .loginUsername').val(conf.user);
+                $('#inputPassword .loginPassword').val(conf.pass);
                 $('#loginButton').trigger('click');
 
                 /*setTimeout(function(){
@@ -290,10 +316,10 @@ $( document ).ready(function() {
                     self.loginStep = 'loginProcess';
                 }, 3000);*/
 
-            } else if('loginStart' == initData.loginStep){
-                initData.loginStep = 'loginProcess';
+            } else if('loginStart' == conf.loginStep){
+                conf.loginStep = 'loginProcess';
                 setTimeout(function(){
-                    initData.loginStep = 'loginComplite';
+                    conf.loginStep = 'loginComplite';
                 }, 3000);
                /* Auth.login('14');
                 setTimeout(function(){
@@ -301,10 +327,10 @@ $( document ).ready(function() {
                     console.log('zzzzzzzz');
                     self.loginStep = 'notLogin';
                 }, 3000);*/
-            } else if('loginComplite' == initData.loginStep){
+            } else if('loginComplite' == conf.loginStep){
                 Auth.login('14');
                 setTimeout(function(){
-                    initData.loginStep = 'notLogin';
+                    conf.loginStep = 'notLogin';
                 }, 3000);
 
             }
@@ -345,7 +371,7 @@ $( document ).ready(function() {
 		}
 		
 		if(!gamePage()){
-			//loginAccount();
+			loginAccount();
 			//ждать загрузки или пытатся залогинится
 		} else {
 
