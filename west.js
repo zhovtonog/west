@@ -33,14 +33,25 @@ $( document ).ready(function() {
         });
 
     }
+
+    function getBotCookie(name) {
+        console.log(name);
+        var matches = document.cookie.match(new RegExp(
+            "(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
+        ));
+        return matches ? decodeURIComponent(matches[1]) : undefined;
+    }
     
-    var conf = {user: 'defking',
-                pass:'defking333',
+    var conf = {user: getBotCookie('user'),
+                pass: getBotCookie('pass'),
                 loginStep : 'notLogin',
 				   sortedWork: 'notInit',
-				   workType: 'experience',
+				   workType: getBotCookie('workType'),
+                    maxDanger: 20,
                     jobID: 0,
                     xp: 0};
+
+    //xp || gold || best
     //botGetJobs(function(data){console.log(data);});
     
     
@@ -66,7 +77,8 @@ $( document ).ready(function() {
         //this.loginStep = 'notLogin';
         var botNS = this;
         
-        console.log('tik');
+        //console.log('tik');
+        //console.log(location.href);
         function initData(){
             JobsWindow.toggleOpen();
             MinimapWindow.open();
@@ -76,6 +88,7 @@ $( document ).ready(function() {
 		
 		function isSleep_(){
             if(TaskQueue.queue[0] && 'sleep' == TaskQueue.queue[0].type){
+                console.log('char energy == ' +  Character.energy + 'char healthy == ' + Character.health/Character.maxHealth);
                 return true;
             } else {
                 return false;
@@ -90,6 +103,7 @@ $( document ).ready(function() {
         }
 		
 		function goSleep(){
+            console.log('try sleep');
             TaskQueue.add(new TaskSleep(Character.homeTown.town_id, 'luxurious_apartment'));
 		}
 		
@@ -149,7 +163,7 @@ $( document ).ready(function() {
             } else {
 
                 if(0 == conf.jobID){
-                    findBestWorkByType('xp', function(data){
+                    findBestWorkByType(conf.workType, function(data){
                         conf.jobID = data.id;
                         conf.xp = data.xp;
                     })
@@ -182,7 +196,7 @@ $( document ).ready(function() {
                                     3600 == duration && Character.energy < 12){
                                     goSleep();
                                 } else {
-
+                                    console.log('start work by id == ' + data.id + 'char energy == ' +  Character.energy + ' HP == ' + Character.health);
                                     JobWindow.startJob(data.id, jobCord.x, jobCord.y, duration);
                                 }
                             } else {
@@ -234,11 +248,18 @@ $( document ).ready(function() {
                 dataType : "json",
                 async: "false",
                 success : function (data) {
+                    console.log(data);
                     var point = 0;
                     var xp = 0;
                     var id = 0;
 
                     $.each(data.jobs, function(key, val){
+                        if(conf.maxDanger < data.danger){
+                            return;
+                        }
+                        if(!JobsModel.getById(key).isVisible){
+                            return;
+                        }
                         if('xp' == type){
                             if(point < val.durations[0].xp){
                                 point = val.durations[0].xp;
@@ -246,8 +267,6 @@ $( document ).ready(function() {
                                 xp = val.durations[0].xp;
 
                             }
-
-
                         } else if('money' == type){
                             if(point < val.durations[0].money){
                                 point = val.durations[0].money;
@@ -257,8 +276,8 @@ $( document ).ready(function() {
                             }
 
                         } else if ('best' == type){
-                            if(point < val.durations[0].money + val.durations[0].xp){
-                                point = val.durations[0].money + val.durations[0].xp;
+                            if(point < val.durations[0].money/2 + val.durations[0].xp){
+                                point = val.durations[0].money/2 + val.durations[0].xp;
                                 id = key;
                                 xp = val.durations[0].xp;
                             }
@@ -302,6 +321,7 @@ $( document ).ready(function() {
 		}
 		
 		function loginAccount(){
+            console.log('login');
             var self = this;
 
             if('notLogin' == conf.loginStep){
@@ -374,7 +394,7 @@ $( document ).ready(function() {
 			loginAccount();
 			//ждать загрузки или пытатся залогинится
 		} else {
-
+            console.log(conf.user);
             if(0 == JobsModel.Jobs.length || "undefined" == typeof(localStore4Minimap.minimapData)){
                 initData();
 
@@ -387,7 +407,8 @@ $( document ).ready(function() {
 			   
 			} else if(isSleep_() && Character.energy/Character.maxEnergy < 0.95 && Character.health/Character.maxHealth < 0.6 && 0 < Character.money){
 				//выложить деньги   
-			} else if(isSleep_() && Character.energy/Character.maxEnergy < 0.95 && Character.health/Character.maxHealth > 0.6){
+			} else if(isSleep_() && Character.energy/Character.maxEnergy > 0.95 && Character.health/Character.maxHealth > 0.6){
+                console.log('weke up');
                 wekeUp();
 			} else if(!isSleep_() && !tasks()){
 				console.log('working');
@@ -409,7 +430,7 @@ $( document ).ready(function() {
     
     setInterval(function(){
         _botStartBot();
-    },5000);
+    },2000);
     
 });
 
