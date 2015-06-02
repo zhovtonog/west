@@ -18,6 +18,15 @@
 
 $( document ).ready(function() {
     console.log( "document ready!" );
+
+
+
+
+    function printStat(){
+        console.log("char = " + conf.user + " Healthy = " + Character.health/Character.maxHealth + " EN = " + Character.energy)
+    }
+
+    setInterval(function(){printStat();}, 5000);
     
     botGetJobs = function(callback){
         jQuery.ajax({
@@ -88,7 +97,7 @@ $( document ).ready(function() {
 		
 		function isSleep_(){
             if(TaskQueue.queue[0] && 'sleep' == TaskQueue.queue[0].type){
-                console.log('char energy == ' +  Character.energy + 'char healthy == ' + Character.health/Character.maxHealth);
+                //console.log('char energy == ' +  Character.energy + 'char healthy == ' + Character.health/Character.maxHealth);
                 return true;
             } else {
                 return false;
@@ -174,7 +183,7 @@ $( document ).ready(function() {
                     var cord = getMinDist(bestJob);
 
                     var jobCord = {jobId: bestJob.id, x: cord.x, y: cord.y};
-                    console.log(cord);
+                    //console.log(cord);
 
                     jQuery.ajax({
                         url : "/game.php?window=job&mode=job",
@@ -183,7 +192,7 @@ $( document ).ready(function() {
                         async: "false",
                         data : jobCord,
                         success : function (data) {
-                            console.log(data);
+                            //console.log(data);
                             var duration = getBestDuration(data.danger, data.maxdmg);
 
                             if(data.durations[0].xp == conf.xp){
@@ -196,7 +205,7 @@ $( document ).ready(function() {
                                     3600 == duration && Character.energy < 12){
                                     goSleep();
                                 } else {
-                                    console.log('start work by id == ' + data.id + 'char energy == ' +  Character.energy + ' HP == ' + Character.health);
+                                    console.log('start work id == ' + bestJob.id + 'char energy == ' +  Character.energy + ' HP == ' + Character.health);
                                     JobWindow.startJob(data.id, jobCord.x, jobCord.y, duration);
                                 }
                             } else {
@@ -248,13 +257,14 @@ $( document ).ready(function() {
                 dataType : "json",
                 async: "false",
                 success : function (data) {
-                    console.log(data);
+                    //console.log(data);
                     var point = 0;
                     var xp = 0;
                     var id = 0;
 
                     $.each(data.jobs, function(key, val){
-                        if(conf.maxDanger < data.danger){
+                        if(conf.maxDanger > val.danger){
+                            //console.log('to danger');
                             return;
                         }
                         if(!JobsModel.getById(key).isVisible){
@@ -394,7 +404,6 @@ $( document ).ready(function() {
 			loginAccount();
 			//ждать загрузки или пытатся залогинится
 		} else {
-            console.log(conf.user);
             if(0 == JobsModel.Jobs.length || "undefined" == typeof(localStore4Minimap.minimapData)){
                 initData();
 

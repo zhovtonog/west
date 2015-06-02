@@ -21,7 +21,7 @@ page.onLoadFinished = function() {
 	phantom.addCookie({'name' : 'pass', 'value': system.args[2], 'domain' : '.the-west.ru'});
 	phantom.addCookie({'name' : 'workType', 'value': system.args[3], 'domain' : '.the-west.ru'});
 	console.log('loadFinished');
-	console.log(location.href);
+	//console.log(location.href);
 	//page.injectJs('jquery.min.js');
 	//page.injectJs('jquery.cookie.js');
 	page.injectJs('west.js');
