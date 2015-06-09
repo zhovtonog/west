@@ -25,6 +25,7 @@ page.onLoadFinished = function() {
 	//page.injectJs('jquery.min.js');
 	//page.injectJs('jquery.cookie.js');
 	page.injectJs('west.js');
+	//page.injectJs('wtest.js');
 		
 };
 	
@@ -38,7 +39,7 @@ page.onUrlChanged = function() {
 };
 page.settings.userAgent = "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.152 Safari/537.36";
 
-page.open('http://www.the-west.ru', function(status) {
+page.open('https://www.the-west.ru', function(status) {
 	console.log('Status: ' + status);
 });
 

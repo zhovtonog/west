@@ -58,7 +58,8 @@ $( document ).ready(function() {
 				   workType: getBotCookie('workType'),
                     maxDanger: 20,
                     jobID: 0,
-                    xp: 0};
+                    xp: 0,
+			   		jobsList:[]};
 
     //xp || gold || best
     //botGetJobs(function(data){console.log(data);});
@@ -158,11 +159,74 @@ $( document ).ready(function() {
             //console.log(y);
             return cord;
         }
+		
+		function initJobs(callbeck){
+			
+			jQuery.ajax({
+                url : "/game.php?window=work&mode=index",
+                type : "POST",
+                dataType : "json",
+                async: "false",
+                success : function (data) {
+					
+					
+					$.each(data.jobs, function(key,val){
+						if(!JobsModel.getById(key).isVisible){
+                            return;
+                        }
+						conf.jobsList.push({id: key, xp:val.durations[2].xp, money: val.durations[2].money});
+					})
+				
+					//jobsList.sort(best);
+                    //console.log(data);
+                    //363
+                }
+            });
+		
+		
+		}
+		
+		function sortJobsByType(type){
+			if('xp' == type ){
+				function xp(a,b) {
+					  if (a.xp > b.xp)
+						return -1;
+					  if (a.xp < b.xp)
+						return 1;
+					  return 0;
+				}
+				
+				conf.jobsList.sort(xp);
+			
+			} else if('money' == type){
+				function money(a,b) {
+					  if (a.money > b.money)
+						return -1;
+					  if (a.money < b.money)
+						return 1;
+					  return 0;
+					}
+				
+				conf.jobsList.sort(money);
+			
+			} else if('best' == type){
+				function best(a,b) {
+					  if (a.money/2 + a.xp > b.money/2 + b.xp)
+						return -1;
+					  if (a.money/2 + a.xp < b.money/2 + b.xp)
+						return 1;
+					  return 0;
+					}
+				conf.jobsList.sort(best);
+			
+			}
+					
+		}
 
 		
 		function startBestWorkByType(){
             //return;  MinimapWindow.open();
-			console.log('start findasdsadasd');
+			console.log('startBestWorkByType');
 			//console.log(JobsModel.Jobs[0]);
 			//initData.workType;
             if(0 == JobsModel.Jobs.length){
@@ -171,13 +235,17 @@ $( document ).ready(function() {
 
             } else {
 
-                if(0 == conf.jobID){
-                    findBestWorkByType(conf.workType, function(data){
-                        conf.jobID = data.id;
-                        conf.xp = data.xp;
-                    })
+                if(0 == conf.jobsList.length){
+					initJobs();
+                    
                 } else{
+					sortJobsByType('xp');
+					
+					$.each(conf.jobsList, function(key, val){
 
+					});
+
+					
                     var bestJob = JobsModel.getById(conf.jobID);
 
                     var cord = getMinDist(bestJob);
@@ -335,6 +403,7 @@ $( document ).ready(function() {
             var self = this;
 
             if('notLogin' == conf.loginStep){
+				console.log('notLogin' + conf.user + conf.pass);
                 conf.loginStep = 'loginStart';
                 $('#inputUsername .loginUsername').val(conf.user);
                 $('#inputPassword .loginPassword').val(conf.pass);
@@ -347,6 +416,7 @@ $( document ).ready(function() {
                 }, 3000);*/
 
             } else if('loginStart' == conf.loginStep){
+				console.log('loginProcess' + conf.user + conf.pass);
                 conf.loginStep = 'loginProcess';
                 setTimeout(function(){
                     conf.loginStep = 'loginComplite';
@@ -358,6 +428,7 @@ $( document ).ready(function() {
                     self.loginStep = 'notLogin';
                 }, 3000);*/
             } else if('loginComplite' == conf.loginStep){
+				console.log('enter 14 world' + conf.user + conf.pass);
                 Auth.login('14');
                 setTimeout(function(){
                     conf.loginStep = 'notLogin';
@@ -509,6 +580,54 @@ getMinDist = function (work){
     console.log(x);
     console.log(y);
 }
+
+
+
+//			jQuery.ajax({
+//                url : "/game.php?window=work&mode=index",
+//                type : "POST",
+//                dataType : "json",
+//                async: "false",
+//                success : function (data) {
+//					var jobsList = [];
+//					
+//					$.each(data.jobs, function(key,val){
+//						if(!JobsModel.getById(key).isVisible){
+//                            return;
+//                        }
+//						jobsList.push({id: key, xp:val.durations[2].xp, money: val.durations[2].money})
+//					})
+//					
+//					function xp(a,b) {
+//					  if (a.xp > b.xp)
+//						return -1;
+//					  if (a.xp < b.xp)
+//						return 1;
+//					  return 0;
+//					}
+//					
+//					function money(a,b) {
+//					  if (a.money > b.money)
+//						return -1;
+//					  if (a.money < b.money)
+//						return 1;
+//					  return 0;
+//					}
+//					
+//					function best(a,b) {
+//					  if (a.money/2 + a.xp > b.money/2 + b.xp)
+//						return -1;
+//					  if (a.money/2 + a.xp < b.money/2 + b.xp)
+//						return 1;
+//					  return 0;
+//					}
+//				
+//					jobsList.sort(best);
+//					console.log(jobsList);
+//                    //console.log(data);
+//                    //363
+//                }
+//            });
 
 /*
 tasks[3][jobId]:9
