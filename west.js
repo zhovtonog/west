@@ -23,10 +23,10 @@ $( document ).ready(function() {
 
 
     function printStat(){
-        console.log("char = " + conf.user + " Healthy = " + Character.health/Character.maxHealth + " EN = " + Character.energy)
+        console.log("char = " + conf.user + " Healthy = " + Character.health/Character.maxHealth + " EN = " + Character.energy + " Work = " + TaskQueue.queue[0].data.job.shortname)
     }
 
-    setInterval(function(){printStat();}, 5000);
+    setInterval(function(){printStat();}, 10000);
     
     botGetJobs = function(callback){
         jQuery.ajax({
@@ -239,49 +239,64 @@ $( document ).ready(function() {
 					initJobs();
                     
                 } else{
-					sortJobsByType('xp');
-					
-					$.each(conf.jobsList, function(key, val){
+					sortJobsByType(conf.workType);
 
+ 					$.each(conf.jobsList, function(key, val){
+                        if("undefined" == typeof(val.danger) || val.danger < conf.maxDanger){
+                            var bestJob = JobsModel.getById(val.id);
+
+                            var cord = getMinDist(bestJob);
+
+                            var jobCord = {jobId: bestJob.id, x: cord.x, y: cord.y};
+                            //console.log(cord);
+
+                            jQuery.ajax({
+                                url : "/game.php?window=job&mode=job",
+                                type : "POST",
+                                dataType : "json",
+                                async: "false",
+                                data : jobCord,
+                                success : function (data) {
+                                    //console.log(data);
+                                    var duration = getBestDuration(data.danger, data.maxdmg);
+
+                                    if(data.durations[2].xp == val.xp){
+                                        if('undefined' == val.danger){
+                                            val.danger = data.danger;
+
+                                        }
+
+                                        if(Character.health/Character.maxHealth < 0.3){
+                                            goSleep();
+
+                                        } else if(15 == duration && Character.energy < 1 ||
+                                            600 == duration && Character.energy < 5 ||
+                                            3600 == duration && Character.energy < 12){
+                                            goSleep();
+                                        } else {
+                                            console.log('start work id == ' + bestJob.id + 'char energy == ' +  Character.energy + ' HP == ' + Character.health);
+                                            JobWindow.startJob(data.id, jobCord.x, jobCord.y, duration);
+                                            return false;
+                                        }
+                                    } else {
+                                        val.xp = data.durations[2].xp;
+                                        val.money = data.durations[2].money;
+                                        val.danger = data.danger;
+                                        sortJobsByType(conf.workType);
+                                        return false;
+                                        //conf.xp = 0;
+                                    }
+                                }
+                            });
+                            return false;
+                        } else {
+
+
+                        }
 					});
 
 					
-                    var bestJob = JobsModel.getById(conf.jobID);
 
-                    var cord = getMinDist(bestJob);
-
-                    var jobCord = {jobId: bestJob.id, x: cord.x, y: cord.y};
-                    //console.log(cord);
-
-                    jQuery.ajax({
-                        url : "/game.php?window=job&mode=job",
-                        type : "POST",
-                        dataType : "json",
-                        async: "false",
-                        data : jobCord,
-                        success : function (data) {
-                            //console.log(data);
-                            var duration = getBestDuration(data.danger, data.maxdmg);
-
-                            if(data.durations[0].xp == conf.xp){
-
-                                if(Character.health/Character.maxHealth < 0.3){
-                                    goSleep();
-
-                                } else if(15 == duration && Character.energy < 1 ||
-                                    600 == duration && Character.energy < 5 ||
-                                    3600 == duration && Character.energy < 12){
-                                    goSleep();
-                                } else {
-                                    console.log('start work id == ' + bestJob.id + 'char energy == ' +  Character.energy + ' HP == ' + Character.health);
-                                    JobWindow.startJob(data.id, jobCord.x, jobCord.y, duration);
-                                }
-                            } else {
-                                conf.jobID = 0;
-                                conf.xp = 0;
-                            }
-                        }
-                    });
 
 
                 }
@@ -477,6 +492,18 @@ $( document ).ready(function() {
 		} else {
             if(0 == JobsModel.Jobs.length || "undefined" == typeof(localStore4Minimap.minimapData)){
                 initData();
+
+            }
+            if(jQuery('.tw2gui_dialog.loginbonus').length){
+                jQuery('.tw2gui_button.collect-btn').click();
+                console.log('get login bonus');
+                return false;
+
+
+            } else if(jQuery('.quest_reward_button.normal').length){
+                jQuery('.quest_reward_button.normal').click();
+                console.log('click revard');
+                return false;
 
             }
 
