@@ -23,10 +23,25 @@ $( document ).ready(function() {
 
 
     function printStat(){
-        console.log("char = " + conf.user + " Healthy = " + Character.health/Character.maxHealth + " EN = " + Character.energy + " Work = " + TaskQueue.queue[0].data.job.shortname)
+		
+		var curTask = ''
+		
+		if('sleep' == TaskQueue.queue[0].type){
+			curTask = 'sleep  yet ' + (TaskQueue.queue[0].data.date_done - Date.now()) / 1000 /60 + ' minutes';
+		
+		} else if('job' == TaskQueue.queue[0].type){
+			curTask = 'job = '+ TaskQueue.queue[0].data.job.shortname +' yet ' + (TaskQueue.queue[0].data.date_done - Date.now()) / 1000 /60 + ' minutes';
+		}
+		
+		console.log('--------------------------------------------------------------------------------');
+		
+        console.log("char = " + conf.user + " Healthy = " + Character.health/Character.maxHealth + " EN = " + Character.energy);
+		console.log(curTask);
+		console.log('=================================================================================');
+		
     }
 
-    setInterval(function(){printStat();}, 10000);
+    setInterval(function(){printStat();}, 60000);
     
     botGetJobs = function(callback){
         jQuery.ajax({
@@ -117,8 +132,11 @@ $( document ).ready(function() {
             TaskQueue.add(new TaskSleep(Character.homeTown.town_id, 'luxurious_apartment'));
 		}
 		
-		function lowEn(){
-            console.log('isSleep_');
+		function layOutMoney(){
+			if(Character.money > 0 ){
+				Ajax.remoteCall("building_bank", "deposit", {town_id: Character.getCapital(), amount: Character.money});
+			
+			}
 		}
 		
 		function getBestDuration(danger, dmg){
@@ -174,7 +192,7 @@ $( document ).ready(function() {
 						if(!JobsModel.getById(key).isVisible){
                             return;
                         }
-						conf.jobsList.push({id: key, xp:val.durations[2].xp, money: val.durations[2].money});
+						conf.jobsList.push({id: key, xp:val.durations[0].xp, money: val.durations[0].money});
 					})
 				
 					//jobsList.sort(best);
@@ -260,7 +278,7 @@ $( document ).ready(function() {
                                     //console.log(data);
                                     var duration = getBestDuration(data.danger, data.maxdmg);
 
-                                    if(data.durations[2].xp == val.xp){
+                                    if(data.durations[0].xp == val.xp){
                                         if('undefined' == val.danger){
                                             val.danger = data.danger;
 
@@ -275,12 +293,14 @@ $( document ).ready(function() {
                                             goSleep();
                                         } else {
                                             console.log('start work id == ' + bestJob.id + 'char energy == ' +  Character.energy + ' HP == ' + Character.health);
+											
+											console.log(data.id + '||' + jobCord.x + '||' + jobCord.y + '||' + duration);
                                             JobWindow.startJob(data.id, jobCord.x, jobCord.y, duration);
                                             return false;
                                         }
                                     } else {
-                                        val.xp = data.durations[2].xp;
-                                        val.money = data.durations[2].money;
+                                        val.xp = data.durations[0].xp;
+                                        val.money = data.durations[0].money;
                                         val.danger = data.danger;
                                         sortJobsByType(conf.workType);
                                         return false;
@@ -411,6 +431,21 @@ $( document ).ready(function() {
 		
 		function startCollect(){
 		
+		}
+		
+		function setSkills(){
+			if(CharacterSkills.freeAttrPoints > 0 || CharacterSkills.freeSkillPoints > 0){
+				Ajax.remoteCall('skill', 'save_skill_changes', {
+					'modifier': 'add',
+					"data": JSON.stringify({
+						"attribute_modifications": {"charisma":1},
+						"skill_modifications": {"leadership":1},
+						"attribute_points_used": 1,
+						"skill_points_used": 1
+					})
+				});
+				
+			}
 		}
 		
 		function loginAccount(){
