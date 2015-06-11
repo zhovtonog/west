@@ -23,7 +23,9 @@ $( document ).ready(function() {
 
 
     function printStat(){
-		
+
+
+        console.log('print stat');
 		var curTask = ''
 		
 		if('sleep' == TaskQueue.queue[0].type){
