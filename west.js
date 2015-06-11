@@ -37,6 +37,7 @@ $( document ).ready(function() {
 		
         console.log("char = " + conf.user + " Healthy = " + Character.health/Character.maxHealth + " EN = " + Character.energy);
 		console.log(curTask);
+		console.log('Free stat == ' + CharacterSkills.freeAttrPoints + ' Free skills == ' + CharacterSkills.freeSkillPoints +  ' gold == ' + Character.money);
 		console.log('=================================================================================');
 		
     }
@@ -71,6 +72,9 @@ $( document ).ready(function() {
                 loginStep : 'notLogin',
 				   sortedWork: 'notInit',
 				   workType: getBotCookie('workType'),
+					workList : getBotCookie('workList'),
+					statUp: getBotCookie('statUp'),
+					skillUp: getBotCookie('skillUp'),
                     maxDanger: 20,
                     jobID: 0,
                     xp: 0,
@@ -125,6 +129,7 @@ $( document ).ready(function() {
             $.each(TaskQueue.queue, function(key,val){
                 TaskQueue.cancel(key);
             });
+			layOutMoney();
         }
 		
 		function goSleep(){
@@ -133,9 +138,9 @@ $( document ).ready(function() {
 		}
 		
 		function layOutMoney(){
+			console.log('LayOutMoney');
 			if(Character.money > 0 ){
 				Ajax.remoteCall("building_bank", "deposit", {town_id: Character.getCapital(), amount: Character.money});
-			
 			}
 		}
 		

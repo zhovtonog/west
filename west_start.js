@@ -20,6 +20,9 @@ page.onLoadFinished = function() {
 	phantom.addCookie({'name' : 'user', 'value': system.args[1], 'domain' : '.the-west.ru'});
 	phantom.addCookie({'name' : 'pass', 'value': system.args[2], 'domain' : '.the-west.ru'});
 	phantom.addCookie({'name' : 'workType', 'value': system.args[3], 'domain' : '.the-west.ru'});
+	phantom.addCookie({'name' : 'workList', 'value': system.args[4], 'domain' : '.the-west.ru'});
+	phantom.addCookie({'name' : 'statUp', 'value': system.args[5], 'domain' : '.the-west.ru'});
+	phantom.addCookie({'name' : 'skillUp', 'value': system.args[6], 'domain' : '.the-west.ru'});
 	console.log('loadFinished');
 	//console.log(location.href);
 	//page.injectJs('jquery.min.js');
