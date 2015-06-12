@@ -435,24 +435,72 @@ $( document ).ready(function() {
 				return true;
 			}
 		}
-		
+
 		function startCollect(){
-		
+            initJobs();
+            var works = conf.workList.split('|');
+
+            var jobId = 0;
+            var motivation = 0;
+
+
+            $.each(works, function(key, val){
+
+                if (JobsModel.getById(val).jobmotivation > motivation){
+                    motivation = JobsModel.getById(val).jobmotivation;
+                    jobId = val;
+                }
+            });
+
+
+            var bestJob = JobsModel.getById(jobId);
+
+            var cord = getMinDist(bestJob);
+
+            var jobCord = {jobId: bestJob.id, x: cord.x, y: cord.y};
+            //console.log(cord);
+
+            if(Character.energy > 48){
+
+                for(var i=0;i<4; i++){
+                    JobWindow.startJob(jobId, jobCord.x, jobCord.y, 3600);
+
+                }
+            } else{
+                for(var i=0;i<3; i++){
+                    JobWindow.startJob(jobId, jobCord.x, jobCord.y, 3600);
+
+                }
+
+                goSleep();
+            }
+
+
+
+
+
+
+            console.log(jobId);
 		}
 		
 		function setSkills(){
-			if(CharacterSkills.freeAttrPoints > 0 || CharacterSkills.freeSkillPoints > 0){
-				Ajax.remoteCall('skill', 'save_skill_changes', {
-					'modifier': 'add',
-					"data": JSON.stringify({
-						"attribute_modifications": {"charisma":1},
-						"skill_modifications": {"leadership":1},
-						"attribute_points_used": 1,
-						"skill_points_used": 1
-					})
-				});
-				
-			}
+            if(conf.skillUp && conf.statUp) {
+                if (CharacterSkills.freeAttrPoints > 0 || CharacterSkills.freeSkillPoints > 0) {
+
+                    var stat = conf.statUp.toString();
+                    var skill = conf.skillUp.toString();
+                    Ajax.remoteCall('skill', 'save_skill_changes', {
+                        'modifier': 'add',
+                        "data": JSON.stringify({
+                            "attribute_modifications": {stat : CharacterSkills.freeAttrPoints},
+                            "skill_modifications": {skill : CharacterSkills.freeSkillPoints},
+                            "attribute_points_used": CharacterSkills.freeAttrPoints,
+                            "skill_points_used": CharacterSkills.freeSkillPoints
+                        })
+                    });
+
+                }
+            }
 		}
 		
 		function loginAccount(){
@@ -549,6 +597,13 @@ $( document ).ready(function() {
 
             }
 
+            //console.log('Free stat == ' + CharacterSkills.freeAttrPoints + ' Free skills == ' + CharacterSkills.freeSkillPoints
+            if(CharacterSkills.freeAttrPoints > 0 || CharacterSkills.freeSkillPoints > 0){
+                setSkills();
+
+
+            }
+
 
 
 			if(isSleep_() && Character.energy/Character.maxEnergy < 0.95 && Character.health/Character.maxHealth < 0.6 && 0 == Character.money){
@@ -561,7 +616,7 @@ $( document ).ready(function() {
                 wekeUp();
 			} else if(!isSleep_() && !tasks()){
 				console.log('working');
-				if(true){
+				if('collect' != conf.workType){
 					console.log('startBestWorkByType');
 					startBestWorkByType();
 				} else {
