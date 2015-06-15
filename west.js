@@ -31,11 +31,13 @@ $( document ).ready(function() {
 
 		if(TaskQueue.queue.length && 'sleep' == TaskQueue.queue[0].type){
             conf.failTik = 0;
-			curTask = 'sleep  yet ' + (TaskQueue.queue[0].data.date_done - Date.now()) / 1000 /60 + ' minutes';
+			curTask = 'sleep  yet ' + ((TaskQueue.queue[0].data.date_done - Date.now()) / 1000 /60).toFixed(2) + ' minutes';
 		
 		} else if(TaskQueue.queue.length && 'job' == TaskQueue.queue[0].type){
             conf.failTik = 0;
-			curTask = 'job = '+ TaskQueue.queue[0].data.job.shortname +' yet ' + (TaskQueue.queue[0].data.date_done - Date.now()) / 1000 /60 + ' minutes';
+			curTask = 'job = '+ TaskQueue.queue[0].data.job.shortname +' yet ' 
+				+ ((TaskQueue.queue[0].data.date_done - Date.now()) / 1000 /60).toFixed(2) + ' minutes Full tasks == ' 
+				+ ((TaskQueue.queue[TaskQueue.queue.length -1].data.date_done - Date.now()) / 1000 /60).toFixed(2) + ' minutes';
 		} else {
             if(conf.failTik < 5){
 
