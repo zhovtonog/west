@@ -5,7 +5,7 @@ var fs = require('fs');
 
 
 page.onConsoleMessage = function(msg, lineNum, sourceId) {
-	console.log('CONSOLE: ' + msg);
+	console.log(msg);
 	if (!fs.exists(system.args[1] + '.log')) {
 	  fs.write(system.args[1] + '.log', msg + '\r\n', 'a');
 	}else {

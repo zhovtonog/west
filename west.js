@@ -27,19 +27,36 @@ $( document ).ready(function() {
 
         console.log('print stat');
 		var curTask = ''
-		
-		if('sleep' == TaskQueue.queue[0].type){
+
+
+		if(TaskQueue.queue.length && 'sleep' == TaskQueue.queue[0].type){
+            conf.failTik = 0;
 			curTask = 'sleep  yet ' + (TaskQueue.queue[0].data.date_done - Date.now()) / 1000 /60 + ' minutes';
 		
-		} else if('job' == TaskQueue.queue[0].type){
+		} else if(TaskQueue.queue.length && 'job' == TaskQueue.queue[0].type){
+            conf.failTik = 0;
 			curTask = 'job = '+ TaskQueue.queue[0].data.job.shortname +' yet ' + (TaskQueue.queue[0].data.date_done - Date.now()) / 1000 /60 + ' minutes';
-		}
+		} else {
+            if(conf.failTik < 5){
+
+                conf.failTik++;
+
+            }else {
+                conf.failTik = 0;
+                location = 'https://www.the-west.ru/';
+
+            }
+
+
+        }
 		
 		console.log('--------------------------------------------------------------------------------');
 		
         console.log("char = " + conf.user + " Healthy = " + Character.health/Character.maxHealth + " EN = " + Character.energy);
 		console.log(curTask);
 		console.log('Free stat == ' + CharacterSkills.freeAttrPoints + ' Free skills == ' + CharacterSkills.freeSkillPoints +  ' gold == ' + Character.money);
+        console.log('Location == ' + location.href);
+
 		console.log('=================================================================================');
 		
     }
@@ -77,10 +94,11 @@ $( document ).ready(function() {
 					workList : getBotCookie('workList'),
 					statUp: getBotCookie('statUp'),
 					skillUp: getBotCookie('skillUp'),
-                    maxDanger: 20,
+                    maxDanger: 15,
                     jobID: 0,
                     xp: 0,
-			   		jobsList:[]};
+			   		jobsList:[],
+                    failTik: 0};
 
     //xp || gold || best
     //botGetJobs(function(data){console.log(data);});
@@ -286,9 +304,14 @@ $( document ).ready(function() {
                                     var duration = getBestDuration(data.danger, data.maxdmg);
 
                                     if(data.durations[0].xp == val.xp){
-                                        if('undefined' == val.danger){
+                                        if('undefined' == typeof(val.danger)){
                                             val.danger = data.danger;
 
+                                        }
+                                        console.log('danger == ' + val.danger);
+
+                                        if(val.danger > conf.maxDanger){
+                                            return false;
                                         }
 
                                         if(Character.health/Character.maxHealth < 0.3){
@@ -466,13 +489,16 @@ $( document ).ready(function() {
                     JobWindow.startJob(jobId, jobCord.x, jobCord.y, 3600);
 
                 }
-            } else{
+            } else if(Character.energy > 11){
                 for(var i=0;i<3; i++){
                     JobWindow.startJob(jobId, jobCord.x, jobCord.y, 3600);
 
                 }
 
+
+            } else {
                 goSleep();
+
             }
 
 
